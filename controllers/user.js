@@ -1,24 +1,18 @@
+require('dotenv').config();
+const DB_SECRET_KEY = process.env.TOKEN_SECRET_KEY;
+const DB_EXPIRATION = process.env.TOKEN_EXPIRATION;
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const MaskData = require('maskdata'); 
 
 const User = require('../models/User');
 
-const emailMask2Options = {
-  maskWith: "*", 
-  unmaskedStartCharactersBeforeAt: 3,
-  unmaskedEndCharactersAfterAt: 2,
-  maskAtTheRate: false
-};
-
+//Inscription de l'utilisateur
 exports.signup = (req, res, next) => {
-    const email = req.body.email;
-   // const maskedEmail = MaskData.maskEmail2(email, emailMask2Options);console.log(maskedEmail);
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
         const user = new User({
           email: req.body.email,
-          //email: maskedEmail,
           password: hash
         });
         user.save()
@@ -28,6 +22,7 @@ exports.signup = (req, res, next) => {
       .catch(error => res.status(500).json({ error }));
 };
 
+//Connexion de l'utilisateur
 exports.login = (req, res, next) => {
     console.log(req.body.email);
     User.findOne({ email: req.body.email })
@@ -44,8 +39,8 @@ exports.login = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                'RANDOM_TOKEN_SECRET',
-                { expiresIn: '24h' }
+                DB_SECRET_KEY,
+                { expiresIn: DB_EXPIRATION }
               )
             });
           })

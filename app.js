@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require("helmet");
 const session = require('express-session');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauces');
@@ -35,6 +36,8 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
+
+app.use(mongoSanitize());
 
 app.use(session({
   secret: 's3Cur3',
